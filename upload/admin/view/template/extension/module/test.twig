@@ -1,0 +1,578 @@
+{{ header }}
+<style>
+    .colorpicker { right: 78% !important; }
+</style>
+{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ entry_button_save }}" class="btn btn-primary" onclick="$('#action').val('save');$('#form-module').submit();"><i class="fa fa-save"></i> {{ button_save }}</button>
+        <a class="btn btn-success" onclick="$('#action').val('save_edit');$('#form-module').submit();" data-toggle="tooltip" title="{{ button_save_and_edit }}"><i class="fa fa-pencil-square-o"></i> {{ button_save_and_edit }}</a>
+		<a class="btn btn-info" onclick="$('#action').val('save_new');$('#form-module').submit();" data-toggle="tooltip" title="{{ button_save_and_new }}"><i class="fa fa-book"></i>  {{ button_save_and_new }}</a>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-danger"><i class="fa fa-reply"></i>  {{ button_cancel }}</a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+            <input type="hidden" name="action" id="action" value="">
+            <div class="form-group"> <label class="col-sm-2 control-label" for="input-name">{{ entry_module_name }}</label>
+                <div class="col-sm-10">
+                    <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_module_name }}" id="input-name" class="form-control" />
+                    {% if error_name %} <div class="text-danger">{{ error_name }}</div> {% endif %}
+                </div>
+            </div>
+            <div class="form-group"> <label class="col-sm-2 control-label" for="input-name">{{ entry_title }}</label>
+                <div class="col-sm-10">
+                    <input type="text" name="title" value="{{ title }}" placeholder="{{ entry_title }}" id="input-title" class="form-control" />
+                    <div class="mt-4">
+                        <label class="control-label" for="input-name">{{ entry_display_title }}</label>
+                        <input class="mr-2" type="radio" name="display_title" value="1" id="input-display_title" {% if display_title == 1 %} checked {% endif %} /><span class="mr-2">{{ text_yes }}</span>
+                        <input class="mr-2" type="radio" name="display_title" value="0" id="input-display_title" {% if display_title == 0 %} checked {% endif %} /><span class="mr-2">{{ text_no }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group"> <label class="col-sm-2 control-label" for="input-name">{{ entry_description }}</label>
+                <div class="col-sm-10">
+                    <input type="text" name="title" value="{{ description }}" placeholder="{{ entry_description }}" id="input-title" class="form-control" />
+                    <div class="mt-4">
+                        <label class="control-label" for="input-name">{{ entry_display_description }}</label>
+                        <input class="mr-2" type="radio" name="display_description" value="1" id="input-display_description" {% if display_description == 1 %} checked {% endif %} /><span class="mr-2">{{ text_yes }}</span>
+                        <input class="mr-2" type="radio" name="display_description" value="0" id="input-display_description" {% if display_description == 0 %} checked {% endif %} /><span class="mr-2">{{ text_no }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group"> <label class="col-sm-2 control-label" for="input-class">{{ entry_class_name }}</label>
+                <div class="col-sm-10">
+                    <input type="text" name="class_suffix" value="{{ class_suffix }}" placeholder="{{ entry_class_name }}" id="input-class" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-name">{{ entry_status }}</label>
+                <div class="col-sm-10">
+                    <select name="status" id="input-status" class="form-control">
+                        {% if status == 1 %} <option value="1" selected="selected">{{ text_enabled }} </option> <option value="0">{{ text_disabled }} </option>
+                        {% else %} <option value="1">{{ text_enabled }} </option> <option value="0" selected="selected">{{ text_disabled }} </option> {% endif %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="tab-pane">
+                <ul class="nav nav-tabs" id="moduletab">
+                  <li class="active"><a href="#data"  data-toggle="tab">{{ entry_data }}</a></li>
+                  <li><a href="#design" data-toggle="tab">{{ entry_design }}</a></li>
+                  <li><a href="#slider" data-toggle="tab">{{ entry_slider }}</a></li>
+                </ul>
+                <div class="tab-content">
+                  {# // -----------------------------------------------------------------------#}
+                    <div class="tab-pane active" id="data"> {# Data Option #}
+                      <table id="testmodule" class="table table-striped table-bordered table-hover">
+                          <thead><tr>
+                              <td class="text-right">{{ entry_image }}</td> <td class="text-left">{{ entry_name }}</td>
+                              <td class="text-right">{{ entry_text }}</td> <td class="text-right">{{ entry_options }}</td>
+                          </tr></thead>
+                          <tbody class="testmodule">        
+                          {% set item_row = 0 %}
+                          {% for item in testmodule %}
+                          <tr id="item_row{{ item_row }}">
+                          <td class="text-left">
+                              <a href="" id="thumb-image{{ item_row }}" data-toggle="image" class="img-thumbnail">
+                              <img src="{{ item.image_url }}" alt="" title="" data-placeholder="{{ placeholder }}"/>
+                              </a> 
+                              <input type="hidden" name="item[{{item_row}}][image]" value="{{ item.image }}" id="input-image{{ item_row }}"/>
+                          </td>
+                          <td class="text-right">
+                              <input type="text" name="item[{{item_row}}][item_name]" value="{{ item.name }}" placeholder="{{ entry_name }}" class="form-control" />
+                              {% if error_item_name %}
+                              <p class="text-danger">{{ error_item_name[item_row] }}</p>
+                              {% endif %}
+                          </td>
+                          <td class="text-right">
+                              <textarea type="text" rows="10" cols="40" name="item[{{item_row}}][text]" placeholder="{{ entry_text }}" class="form-control">{{ item.text }}</textarea>
+                          </td>
+                          <td class="text-right">
+                              <div class="row">
+                                  <div class="col-sm-6">
+                                      <label class="control-label"> {{ entry_link }}</label>
+                                      <input type="text" name="item[{{item_row}}][link]" value="{{ item.link }}" placeholder="{{ entry_link }}" class="form-control" />
+                                      
+                                      <label class="control-label"> {{ entry_sort }} </label>
+                                      <input type="text" name="item[{{item_row}}][sort]" value="{{ item.sort }}" placeholder="{{ entry_sort }}" class="form-control" />
+ 
+                                  </div>
+                                  <div class="col-sm-6 jcolorpicker">
+                                      
+                                      <label class="control-label"> {{ entry_class_name }}</label>
+                                      <input type="text" name="item[{{item_row}}][class_prefix]" value="{{ item.class_prefix }}" placeholder="{{ entry_class_name }}" class="form-control" />
+                                      
+                                      
+                                      <label class="control-label"> {{ entry_color }}</label>
+                                      <input type="text" name="item[{{item_row}}][color]" value="{{ item.color }}" placeholder="{{ entry_color }}" class="form-control jcolor" />
+ 
+                                  </div>
+                              </div>
+                          </td>
+                          <td class="text-right"><button type="button" onclick="$('#item_row{{ item_row }}').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>
+                          </tr>
+                          {% set item_row = item_row + 1 %}
+                          {% endfor %}
+                          </tbody>   
+                          <tfoot>
+                          <tr>
+                              <td colspan="4"></td>
+                              <td class="text-right"><button type="button" onclick="addItemRow();" data-toggle="tooltip" title="{{ button_item_add }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+                          </tr>
+                          </tfoot>
+                      </table>
+                    </div>
+                  {# // -----------------------------------------------------------------------#}
+                    <div class="tab-pane" id="design"> {# design Option #}
+                      <div class="form-group"> {# store layout #}
+                        <label class="col-sm-2 control-label" for="input-item_link_target">{{ entry_store_layout }}</label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="store_layout" id="input-store_layout" class="form-control">
+                              {% for key ,layout in store_layouts %}
+                                {% if key == store_layout %}
+                                <option value="{{key}}" selected="selected">{{ layout }}</option>
+                                {% else %}
+                                <option value="{{key}}">{{ layout }}</option>
+                                {% endif %}
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                        
+                        <div class="form-group"> {# Width #}
+                          <label class="col-sm-2 control-label" for="input-margin">{{ entry_width }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <input type="text" name="width" value="{{ width }}" id="input-margin" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="form-group"> {# Height #}
+                          <label class="col-sm-2 control-label" for="input-margin">{{ entry_height }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <input type="text" name="height" value="{{ height }}" id="input-margin" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+                        
+                      <div class="form-group"> {# Columns 0  #}
+                        <label class="col-sm-2 control-label" for="input-column_1200">
+                          <span data-toggle="tooltip" title="{{ entry_nb_column0_desc }} ">{{ entry_column0 }}  </span>
+                        </label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="nb_column0" id="input-column_1200" class="form-control">
+                              {% for option_value in 1..12 %}
+                              {% set selected = option_value  == nb_column0 ? 'selected' :'' %}
+                                <option value="{{ option_value }}" {{ selected }} >{{ option_value }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group"> {# Columns 1  #}
+                        <label class="col-sm-2 control-label" for="input-column_992">
+                          <span data-toggle="tooltip" title="{{ entry_nb_column1_desc }} ">{{ entry_column1 }}  </span>
+                        </label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="nb_column1" id="input-column_992" class="form-control">
+                              {% for option_value in 1..12 %}
+                              {% set selected = option_value  == nb_column1 ? 'selected' :'' %}
+                                <option value="{{ option_value }}" {{ selected }} >{{ option_value }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group"> {# Columns 2  #}
+                        <label class="col-sm-2 control-label" for="input-column_768_991">
+                        <span data-toggle="tooltip" title="{{ entry_nb_column2_desc }} ">{{ entry_column2 }}  </span>
+                        </label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="nb_column2" id="input-column_768_992" class="form-control">
+                              {% for option_value in 1..12 %}
+                              {% set selected = option_value  == nb_column2 ? 'selected' :'' %}
+                                <option value="{{ option_value }}" {{ selected }} >{{ option_value }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group"> {# Columns 3  #}
+                        <label class="col-sm-2 control-label" for="input-column_480_767">
+                          <span data-toggle="tooltip" title="{{ entry_nb_column3_desc }} ">{{ entry_column3 }}  </span>
+                        </label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="nb_column3" id="input-column_480_767" class="form-control">
+                              {% for option_value in 1..12 %}
+                              {% set selected = option_value  == nb_column3 ? 'selected' :'' %}
+                                <option value="{{ option_value }}" {{ selected }} >{{ option_value }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group"> {# Columns 4  #}
+                        <label class="col-sm-2 control-label" for="input-column_0_479">
+                          <span data-toggle="tooltip" title="{{ entry_nb_column4_desc }} ">{{ entry_column4 }}  </span>
+                        </label>
+                        <div class="col-sm-10">
+                          <div class="col-sm-3">
+                            <select name="nb_column4" id="input-column_0_479" class="form-control">
+                              {% for option_value in 1..12 %}
+                              {% set selected = option_value  == nb_column4 ? 'selected' :'' %}
+                                <option value="{{ option_value }}" {{ selected }} >{{ option_value }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group"> {# RTL #}
+                          <label class="col-sm-2 control-label" for="input-rtl">{{ entry_rtl }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="rtl" id="input-rtl" class="form-control">
+                                {% if rtl %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Center #}
+                          <label class="col-sm-2 control-label" for="input-center">{{ entry_center }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="center" id="input-center" class="form-control">
+                                {% if center %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  {# // -----------------------------------------------------------------------#}
+                    <div class="tab-pane" id="slider"> {# slider Option #}
+                      <div class="form-group"> {# is_slider #}
+                          <label class="col-sm-2 control-label" for="input-is_carousel">{{ entry_is_carousel }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="is_carousel" id="input-is_carousel" class="form-control">
+                                {% if is_carousel %}
+                                    <option value="1" selected="selected">{{ text_yes }} </option>
+                                    <option value="0">{{ text_no }} </option>
+                                  {% else %}
+                                    <option value="1">{{ text_yes }} </option>
+                                    <option value="0" selected="selected">{{ text_no }} </option>
+                                  {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group"> {# Loop #}
+                          <label class="col-sm-2 control-label" for="input-loop">{{ entry_loop }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="loop" id="input-loop" class="form-control">
+                                {% if loop %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Auto Play #}
+                          <label class="col-sm-2 control-label" for="input-autoplay">{{ entry_autoplay }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="autoplay" id="input-autoplay" class="form-control">
+                                {% if autoplay %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Mouse drag #}
+                          <label class="col-sm-2 control-label" for="input-mousedrag">{{ entry_mousedrag }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="mousedrag" id="input-mousedrag" class="form-control">
+                                {% if mousedrag %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Auto height #}
+                          <label class="col-sm-2 control-label" for="input-autoheight">{{ entry_autoheight }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="autoheight" id="input-autoheight" class="form-control">
+                                {% if autoheight %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Auto width #}
+                          <label class="col-sm-2 control-label" for="input-autowidth">{{ entry_autowidth }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="autowidth" id="input-autowidth" class="form-control">
+                                {% if autowidth %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="form-group"> {# Delay #}
+                          <label class="col-sm-2 control-label" for="input-delay">{{ entry_delay }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <input type="text" name="delay" value="{{ delay }}" id="input-delay" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Speed #}
+                          <label class="col-sm-2 control-label" for="input-speed">{{ entry_speed }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <input type="text" name="speed" value="{{ speed }}" id="input-speed" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Margin #}
+                          <label class="col-sm-2 control-label" for="input-margin">{{ entry_margin }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <input type="text" name="margin" value="{{ margin }}" id="input-margin" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Arrows #}
+                          <label class="col-sm-2 control-label" for="input-arrows">{{ entry_arrows }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="arrows" id="input-arrows" class="form-control">
+                                {% if arrows %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Pagination #}
+                          <label class="col-sm-2 control-label" for="input-pagination">{{ entry_pagination }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="pagination" id="input-pagination" class="form-control">
+                                {% if pagination %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Lazy load #}
+                          <label class="col-sm-2 control-label" for="input-lazyload">{{ entry_lazyload }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="lazyload" id="input-lazyload" class="form-control">
+                                {% if lazyload %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Pause on Hover #}
+                          <label class="col-sm-2 control-label" for="input-hoverpause">{{ entry_hoverpause }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="hoverpause" id="input-hoverpause" class="form-control">
+                                {% if hoverpause %}
+                                  <option value="1" selected="selected">{{ text_yes }} </option>
+                                  <option value="0">{{ text_no }} </option>
+                                {% else %}
+                                  <option value="1">{{ text_yes }} </option>
+                                  <option value="0" selected="selected">{{ text_no }} </option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="form-group"> {# Target #}
+                          <label class="col-sm-2 control-label" for="input-item_link_target">{{ entry_item_link_target }}</label>
+                          <div class="col-sm-10">
+                            <div class="col-sm-3">
+                              <select name="item_link_target" id="input-item_link_target" class="form-control">
+                                {% if item_link_target == "_self" %}
+                                  <option value="_self" selected="selected">{{ text_self }}</option>
+                                  <option value="_blank">{{ text_blank }}</option>
+                                {% else %}
+                                  <option value="_self">{{ text_self }}</option>
+                                  <option value="_blank" selected="selected">{{ text_blank }}</option>
+                                {% endif %}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                  {# // -----------------------------------------------------------------------#}
+                </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript"><!--
+
+// Color Picker
+{# /*https://farbelous.io/bootstrap-colorpicker/v2/*/ #}
+function colorpicker() {
+    var colorpicker = $('.jcolor').colorpicker({
+    'align': 'right'
+    });
+    colorpicker.on('changeColor', function(e) {
+    var clr = $(this).data('colorpicker').getValue();
+    }).on('hidePicker', function(e) {
+    console.log('hide me');
+    });
+}
+
+colorpicker();
+
+
+
+var item_row = {{ item_row }};
+function addItemRow() {
+    html = `
+    <tr id="item_row${item_row}">
+     <td class="text-left"><a href="" id="thumb-image${item_row}" data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" data-placeholder="{{ placeholder }}"></a> 
+     <input type="hidden" name="item[${item_row}][image]" id="input-image${item_row}"/>
+     </td>
+     <td class="text-right"><input type="text" name="item[${item_row}][item_name]" placeholder="{{ entry_name }}" class="form-control"></td>
+     <td class="text-right"><textarea type="text" rows="10" cols="40" name="item[${item_row}][text]" placeholder="{{ entry_text }}" class="form-control"></textarea></td>
+     
+      <td class="text-right">
+          <div class="row">
+              <div class="col-sm-6">
+                  <label class="control-label"> {{ entry_link }}</label>
+                  <input type="text" name="item[${item_row}][link]" placeholder="{{ entry_link }}" class="form-control" />
+                  
+                  <label class="control-label"> {{ entry_sort }} </label>
+                  <input type="text" name="item[${item_row}][sort]" placeholder="{{ entry_sort }}" class="form-control" />
+
+              </div>
+              <div class="col-sm-6 ">
+                  
+                  <label class="control-label"> {{ entry_class_name }}</label>
+                  <input type="text" name="item[${item_row}][class_prefix]" placeholder="{{ entry_class_name }}" class="form-control" />
+                  
+                  
+                  <label class="control-label"> {{ entry_color }}</label>
+                  <input type="text" name="item[${item_row}][color]" placeholder="{{ entry_color }}" class="form-control jcolor" />
+
+              </div>
+          </div>
+      </td>
+     
+     <td class="text-right"><button type="button" onclick="$('#item_row${item_row}').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td></tr>
+    </tr>`;
+    
+	$('.testmodule').append(html);
+	item_row++;
+    colorpicker();
+}
+//--></script></div>
+{{ footer }}
